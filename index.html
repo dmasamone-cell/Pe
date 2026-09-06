@@ -9,19 +9,17 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- Supabase JS SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
   :root{
-    --bg: #0E0D10;
-    --bg-raised: #17151A;
+    --bg: #0D0D0F;
+    --bg-raised: #18171C;
     --bg-card: #141318;
     --ink: #F1ECE4;
     --ink-dim: #9C948C;
-    --accent: #E3B23C;
+    --accent: #F5B82E;
     --accent-ink: #1A1508;
-    --line: #2A262B;
+    --line: #26242A;
     --sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
 
@@ -32,42 +30,22 @@
   button{font-family:inherit;}
   img{display:block; max-width:100%;}
 
-  /* Liquid Glass Styles */
-  .liquid-glass{
-    position:relative;
-    background: linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.03) 40%, rgba(255,255,255,0.08));
-    backdrop-filter: blur(14px) saturate(160%);
-    -webkit-backdrop-filter: blur(14px) saturate(160%);
-    border: 1px solid rgba(255,255,255,0.22);
-    box-shadow: inset 0 1px 1px rgba(255,255,255,0.5), inset 0 -6px 14px rgba(255,255,255,0.06), 0 8px 22px -10px rgba(0,0,0,0.55);
-    overflow:hidden;
-    isolation:isolate;
-    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-  }
-  .liquid-glass::before{
-    content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
-    background: linear-gradient(120deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 26%, rgba(255,255,255,0) 74%, rgba(255,255,255,0.18) 100%);
-    mix-blend-mode:overlay;
-  }
-
-  /* Header */
-  header{ position:sticky; top:0; z-index:50; background:rgba(14,13,16,0.85); backdrop-filter:blur(12px); border-bottom:1px solid var(--line); }
+  /* Header Glass */
+  header{ position:sticky; top:0; z-index:50; background:rgba(13,13,15,0.85); backdrop-filter:blur(12px); border-bottom:1px solid var(--line); }
   .nav-wrap{ max-width:1280px; margin:0 auto; display:flex; align-items:center; gap:20px; padding:14px 20px; }
   .logo{ font-weight:800; font-size:1.4rem; color:var(--accent); cursor:pointer; letter-spacing:-0.5px; }
   .logo span{ color:#fff; }
   
-  .search-box{ margin-left:auto; display:flex; align-items:center; background:var(--bg-raised); border:1px solid var(--line); border-radius:20px; padding:7px 14px; gap:8px; width:220px; }
+  .search-box{ margin-left:auto; display:flex; align-items:center; background:var(--bg-raised); border:1px solid var(--line); border-radius:20px; padding:7px 14px; gap:8px; width:260px; }
   .search-box input{ background:none; border:none; outline:none; color:var(--ink); font-size:0.85rem; width:100%; }
   .search-box i{ color:var(--ink-dim); font-size:0.9rem; cursor:pointer; }
 
-  .user-nav-btn{ background:var(--accent); color:var(--accent-ink); border:none; padding:7px 16px; border-radius:20px; font-weight:700; font-size:0.8rem; cursor:pointer; }
-
   .genre-strip{ max-width:1280px; margin:0 auto; padding:12px 20px; display:flex; gap:10px; overflow-x:auto; border-bottom:1px solid var(--line); }
   .genre-strip::-webkit-scrollbar{ height:0; }
-  .genre-chip{ flex-shrink:0; padding:6px 14px; border:1px solid var(--line); border-radius:100px; font-size:0.8rem; color:var(--ink-dim); cursor:pointer; background:none; }
-  .genre-chip.active{ background:var(--ink); color:var(--bg); border-color:var(--ink); font-weight:600; }
+  .genre-chip{ flex-shrink:0; padding:6px 14px; border:1px solid var(--line); border-radius:100px; font-size:0.8rem; color:var(--ink-dim); cursor:pointer; background:none; transition:all 0.2s; }
+  .genre-chip.active, .genre-chip:hover{ background:var(--ink); color:var(--bg); border-color:var(--ink); font-weight:600; }
 
-  /* Section Layouts */
+  /* Layout */
   .container{ max-width:1280px; margin:0 auto; padding:24px 20px; }
   .row{ margin-bottom:36px; }
   .row-title{ font-size:1.3rem; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
@@ -84,7 +62,7 @@
   .card-title{ font-size:0.85rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .card-sub{ font-size:0.75rem; color:var(--ink-dim); margin-top:3px; }
 
-  /* DETAIL VIEW */
+  /* DETAIL VIEW FILM */
   #detailView{ display:none; max-width:1000px; margin:0 auto; padding-bottom:80px; }
   .back-btn{ display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.1); border:none; color:#fff; cursor:pointer; margin-bottom:15px; }
 
@@ -94,13 +72,12 @@
   
   .btn-tonton{ position:absolute; bottom:20px; right:20px; background:var(--accent); color:var(--accent-ink); border:none; padding:12px 28px; border-radius:30px; font-weight:700; font-size:0.95rem; cursor:pointer; display:flex; align-items:center; gap:8px; box-shadow:0 10px 20px rgba(245,184,46,0.3); }
   
-  /* Video Player Box */
+  /* Video Player Container */
   .player-box{ display:none; width:100%; aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden; margin-bottom:20px; border:1px solid var(--line); }
   .player-box iframe{ width:100%; height:100%; border:none; }
   .server-list{ display:none; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
   .server-chip{ background:var(--bg-raised); border:1px solid var(--line); color:var(--ink-dim); padding:6px 14px; border-radius:6px; font-size:0.8rem; cursor:pointer; }
   .server-chip.active{ border-color:var(--accent); color:var(--accent); font-weight:600; }
-  .server-chip.vip-only{ border-color:var(--accent); position:relative; }
 
   /* Info Details */
   .detail-header{ display:flex; gap:16px; margin-top:20px; align-items:flex-start; }
@@ -131,19 +108,6 @@
   .cast-img{ width:80px; height:80px; border-radius:50%; object-fit:cover; border:1px solid var(--line); background:var(--bg-raised); }
   .cast-name{ font-size:0.75rem; font-weight:600; margin-top:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-  /* Modals (Auth & Premium Billing) */
-  .modal-backdrop{ position:fixed; inset:0; z-index:110; background:rgba(8,7,9,0.85); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; padding:24px; opacity:0; pointer-events:none; transition:opacity .2s ease; }
-  .modal-backdrop.show{ opacity:1; pointer-events:auto; }
-  .auth-card{ background:var(--bg-raised); border:1px solid var(--line); border-radius:16px; padding:28px; width:100%; max-width:380px; text-align:center; position:relative; }
-  .auth-card h2{ font-size:1.3rem; margin-bottom:10px; color:var(--accent); }
-  .auth-card input{ width:100%; padding:12px; margin-bottom:12px; background:var(--bg-card); border:1px solid var(--line); border-radius:8px; color:#fff; font-size:0.9rem; }
-  .auth-card button.btn-submit{ width:100%; padding:12px; background:var(--accent); color:var(--accent-ink); border:none; border-radius:8px; font-weight:700; cursor:pointer; }
-  .modal-close-icon{ position:absolute; top:14px; right:16px; cursor:pointer; color:var(--ink-dim); }
-
-  /* Pricing / Subscription Box */
-  .plan-box{ background:linear-gradient(135deg, rgba(227,178,60,0.2), rgba(0,0,0,0.5)); border:1px solid var(--accent); border-radius:12px; padding:20px; margin-top:15px; text-align:left; }
-  .plan-price{ font-size:1.5rem; font-weight:800; color:var(--accent); margin:10px 0; }
-
   /* Bottom Nav Mobile */
   .bottom-nav{ position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:rgba(20,19,24,0.92); backdrop-filter:blur(12px); border:1px solid var(--line); border-radius:30px; padding:8px 20px; display:flex; gap:24px; z-index:100; box-shadow:0 10px 25px rgba(0,0,0,0.6); }
   .nav-item{ background:none; border:none; color:var(--ink-dim); font-size:0.7rem; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; }
@@ -160,7 +124,6 @@
       <input type="text" id="searchInput" placeholder="Cari film / TV..." onkeypress="if(event.key==='Enter') executeSearch()">
       <i class="fa-solid fa-magnifying-glass" onclick="executeSearch()"></i>
     </div>
-    <button class="user-nav-btn" id="userAuthBtn" onclick="toggleAuthModal()"><i class="fa-solid fa-user"></i> Masuk</button>
   </div>
   <div class="genre-strip" id="genreStrip"></div>
 </header>
@@ -232,73 +195,24 @@
   </div>
 </div>
 
-<!-- MODAL AUTH / LOGIN / REGISTER -->
-<div class="modal-backdrop" id="authModal">
-  <div class="auth-card">
-    <span class="modal-close-icon" onclick="toggleAuthModal()">✕</span>
-    <h2 id="authTitle">Masuk ke BillyMovieZone</h2>
-    <p style="font-size:0.8rem; color:var(--ink-dim); margin-bottom:15px;" id="authSub">Akses fitur simpan favorit & server VIP Premium</p>
-    
-    <input type="email" id="authEmail" placeholder="Alamat Email...">
-    <input type="password" id="authPassword" placeholder="Kata Sandi...">
-    
-    <button class="btn-submit" id="authSubmitBtn" onclick="handleAuthAction()">Masuk</button>
-    <p style="font-size:0.75rem; color:var(--ink-dim); margin-top:15px; cursor:pointer;" onclick="switchAuthMode()" id="authSwitchText">Belum punya akun? Daftar sekarang</p>
-  </div>
-</div>
-
-<!-- MODAL PREMIUM SUBSCRIPTION BILLING -->
-<div class="modal-backdrop" id="premiumModal">
-  <div class="auth-card" style="max-width:420px;">
-    <span class="modal-close-icon" onclick="togglePremiumModal()">✕</span>
-    <h2><i class="fa-solid fa-crown" style="color:var(--accent);"></i> Beli Akses Premium</h2>
-    <p style="font-size:0.8rem; color:var(--ink-dim);">Nikmati Server VIP Bebas Iklan & Kualitas HD 1080p</p>
-    
-    <div class="plan-box">
-      <div style="font-size:0.85rem; font-weight:700;">Paket Premium 1 Bulan</div>
-      <div class="plan-price">Rp 15.000 <span style="font-size:0.75rem; font-weight:normal; color:var(--ink-dim);">/ 30 Hari</span></div>
-      <ul style="font-size:0.75rem; color:var(--ink-dim); padding-left:18px; margin-top:8px;">
-        <li>Akses penuh ke Server VidSrc VIP & SuperEmbed</li>
-        <li>Bebas Iklan Pop-up</li>
-        <li>Kecepatan Buffer Maksimal</li>
-      </ul>
-    </div>
-
-    <!-- QRIS SIMULASI -->
-    <div style="margin-top:15px; background:#fff; padding:10px; border-radius:8px; display:inline-block;">
-      <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=BILLYMOVIEZONE_PREMIUM_SUBSCRIPTION" alt="QRIS Billing" style="width:130px; height:130px;">
-    </div>
-    <p style="font-size:0.7rem; color:var(--ink-dim); margin-top:5px;">Scan via QRIS (Gopay, DANA, OVO, ShopeePay)</p>
-
-    <button class="btn-submit" style="margin-top:15px;" onclick="simulatePaymentSuccess()">Konfirmasi Pembayaran</button>
-  </div>
-</div>
-
 <!-- Bottom Navigation Bar Mobile -->
 <div class="bottom-nav">
   <button class="nav-item active" onclick="showHomeView()"><i class="fa-solid fa-house"></i><span>Beranda</span></button>
   <button class="nav-item" onclick="document.getElementById('searchInput').focus()"><i class="fa-solid fa-magnifying-glass"></i><span>Cari</span></button>
-  <button class="nav-item" onclick="togglePremiumModal()"><i class="fa-solid fa-crown" style="color:var(--accent);"></i><span>VIP</span></button>
+  <button class="nav-item" onclick="showHomeView()"><i class="fa-solid fa-layer-group"></i><span>Genre</span></button>
+  <button class="nav-item" onclick="loadPopuler()"><i class="fa-solid fa-fire"></i><span>Populer</span></button>
 </div>
 
 <script>
-  // ---------- SUPABASE INITIALIZATION ----------
-  const SUPABASE_URL = "https://YOUR_SUPABASE_PROJECT.supabase.co"; // Ganti dengan Supabase URL kamu
-  const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";               // Ganti dengan Supabase Key kamu
-  const supabase = (SUPABASE_URL.includes("YOUR_")) ? null : supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  let currentUser = null;
-  let isUserPremium = false;
-
-  // TMDB Config
+  // Konfigurasi TMDB & Embed
   const TMDB_BASE = "https://api.themoviedb.org/3";
   const TMDB_TOKEN = "4a1e36ee37d8dbb5691e45ecf61c7dcb";
   const IMG_BASE = "https://image.tmdb.org/t/p";
 
   const STREAM_SOURCES = [
-    { id: "vidsrc", label: "Server VIP 1 (Fast)", isVip: true, baseUrl: "https://vidsrc.me/embed/movie?tmdb=" },
-    { id: "superembed", label: "Server VIP 2 (HD)", isVip: true, baseUrl: "https://multiembed.mov/directstream.php?video_id=" },
-    { id: "2embed", label: "Server 3 (Free)", isVip: false, baseUrl: "https://www.2embed.cc/embed/" }
+    { id: "vidsrc", label: "Server 1 (Fast)", url: (id, type) => type === "movie" ? `https://vidsrc.me/embed/movie?tmdb=${id}` : `https://vidsrc.me/embed/tv?tmdb=${id}&season=1&episode=1` },
+    { id: "superembed", label: "Server 2 (HD)", url: (id, type) => type === "movie" ? `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1` : `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1&s=1&e=1` },
+    { id: "vidsrccc", label: "Server 3 (Backup)", url: (id, type) => type === "movie" ? `https://vidsrc.cc/v2/embed/movie/${id}` : `https://vidsrc.cc/v2/embed/tv/${id}/1/1` }
   ];
 
   function imgUrl(path, type = "poster") {
@@ -320,10 +234,7 @@
     `<button class="genre-chip ${i===0?'active':''}" onclick="filterGenre(${g.id}, '${g.name}', this)">${g.name}</button>`
   ).join("");
 
-  document.addEventListener("DOMContentLoaded", () => {
-    loadTrending();
-    checkAuthSession();
-  });
+  document.addEventListener("DOMContentLoaded", loadTrending);
 
   async function tmdbFetch(endpoint, params = {}) {
     const qs = new URLSearchParams({ api_key: TMDB_TOKEN, language: "id-ID", ...params }).toString();
@@ -335,6 +246,25 @@
     showHomeView();
     document.getElementById("gridTitle").innerHTML = `<i class="fa-solid fa-fire"></i> Trending Minggu Ini`;
     const data = await tmdbFetch("/trending/all/day");
+    renderGrid(data.results);
+  }
+
+  async function loadPopuler() {
+    showHomeView();
+    document.getElementById("gridTitle").innerHTML = `<i class="fa-solid fa-star"></i> Film Paling Populer`;
+    const data = await tmdbFetch("/movie/popular");
+    renderGrid(data.results);
+  }
+
+  async function filterGenre(genreId, genreName, btn) {
+    document.querySelectorAll(".genre-chip").forEach(c => c.classList.remove("active"));
+    if (btn) btn.classList.add("active");
+    showHomeView();
+
+    if (!genreId) return loadTrending();
+
+    document.getElementById("gridTitle").innerHTML = `<i class="fa-solid fa-layer-group"></i> Kategori: ${genreName}`;
+    const data = await tmdbFetch("/discover/movie", { with_genres: genreId, sort_by: "popularity.desc" });
     renderGrid(data.results);
   }
 
@@ -395,142 +325,77 @@
     document.getElementById("ratingScore").innerText = rating;
     document.getElementById("ratingCount").innerText = `(${detail.vote_count || 0} ratings)`;
     document.getElementById("detailYear").innerText = (detail.release_date || detail.first_air_date || "2026").split("-")[0];
-    document.getElementById("detailRuntime").innerText = detail.runtime ? `${detail.runtime} min` : 'N/A';
-    document.getElementById("detailOverview").innerText = detail.overview || "Sinopsis tidak tersedia.";
+    document.getElementById("detailRuntime").innerText = detail.runtime ? `${detail.runtime} menit` : (detail.episode_run_time?.[0] ? `${detail.episode_run_time[0]} menit` : 'N/A');
+    document.getElementById("detailPg").innerText = detail.adult ? "18+" : "PG-13";
+    document.getElementById("detailOverview").innerText = detail.overview || "Sinopsis belum tersedia untuk film ini.";
     document.getElementById("detailStatus").innerText = detail.status || "Released";
 
     const director = detail.credits?.crew ? detail.credits.crew.find(c => c.job === "Director") : null;
     document.getElementById("detailDirector").innerText = director ? director.name : "N/A";
+
+    const tagsContainer = document.getElementById("detailTags");
+    tagsContainer.innerHTML = "";
+    if (detail.genres) {
+      detail.genres.forEach(g => {
+        tagsContainer.innerHTML += `<span class="tag-item">#${g.name.toLowerCase().replace(/\s+/g, '_')}</span>`;
+      });
+    }
+
+    const castContainer = document.getElementById("castContainer");
+    castContainer.innerHTML = "";
+    if (detail.credits?.cast && detail.credits.cast.length > 0) {
+      detail.credits.cast.slice(0, 10).forEach(person => {
+        const photo = imgUrl(person.profile_path, "profile") || "https://via.placeholder.com/100x100?text=No+Img";
+        castContainer.innerHTML += `
+          <div class="cast-card">
+            <img src="${photo}" class="cast-img" alt="${person.name}">
+            <div class="cast-name">${person.name}</div>
+            <div class="cast-role">${person.character || '-'}</div>
+          </div>
+        `;
+      });
+    } else {
+      castContainer.innerHTML = `<span style="font-size:0.8rem; color:var(--ink-dim);">Pemeran belum tersedia.</span>`;
+    }
 
     document.getElementById("homeView").style.display = "none";
     document.getElementById("detailView").style.display = "block";
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  /* SISTEM PEMUTARAN VIDEO & RESTRIKSI PREMIUM */
   function startStreaming() {
     const playerBox = document.getElementById("playerBox");
     const serverList = document.getElementById("serverList");
     const iframe = document.getElementById("videoIframe");
 
-    // Tampilkan Server
+    iframe.src = STREAM_SOURCES[0].url(activeMovieId, activeMovieType);
     playerBox.style.display = "block";
     serverList.style.display = "flex";
     serverList.innerHTML = "";
 
     STREAM_SOURCES.forEach((src, idx) => {
       const btn = document.createElement("button");
-      btn.className = `server-chip ${idx === 0 ? 'active' : ''} ${src.isVip ? 'vip-only' : ''}`;
-      btn.innerHTML = src.isVip ? `<i class="fa-solid fa-crown" style="color:var(--accent);"></i> ${src.label}` : src.label;
-
+      btn.className = `server-chip ${idx === 0 ? 'active' : ''}`;
+      btn.innerText = src.label;
       btn.onclick = () => {
-        if (src.isVip && !isUserPremium) {
-          alert("Server ini khusus member Premium! Silahkan upgrade akun kamu.");
-          togglePremiumModal();
-          return;
-        }
         document.querySelectorAll(".server-chip").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        iframe.src = `${src.baseUrl}${activeMovieId}`;
+        iframe.src = src.url(activeMovieId, activeMovieType);
       };
       serverList.appendChild(btn);
     });
 
-    // Default Server
-    if (isUserPremium) {
-      iframe.src = `${STREAM_SOURCES[0].baseUrl}${activeMovieId}`;
-    } else {
-      // Jika Free User, paksa pakai Server 3 Free
-      iframe.src = `${STREAM_SOURCES[2].baseUrl}${activeMovieId}`;
-    }
-
     playerBox.scrollIntoView({ behavior: 'smooth' });
   }
 
-  // ---------- LOGIKA AUTHENTICATION & BILLING ----------
-  let isAuthRegisterMode = false;
+  async function executeSearch() {
+    const q = document.getElementById("searchInput").value.trim();
+    if (!q) return;
 
-  function toggleAuthModal() {
-    const modal = document.getElementById("authModal");
-    modal.classList.toggle("show");
-  }
-
-  function togglePremiumModal() {
-    if (!currentUser) {
-      alert("Silahkan login terlebih dahulu sebelum membeli Premium.");
-      toggleAuthModal();
-      return;
-    }
-    const modal = document.getElementById("premiumModal");
-    modal.classList.toggle("show");
-  }
-
-  function switchAuthMode() {
-    isAuthRegisterMode = !isAuthRegisterMode;
-    document.getElementById("authTitle").innerText = isAuthRegisterMode ? "Daftar Akun Baru" : "Masuk ke BillyMovieZone";
-    document.getElementById("authSubmitBtn").innerText = isAuthRegisterMode ? "Daftar" : "Masuk";
-    document.getElementById("authSwitchText").innerText = isAuthRegisterMode ? "Sudah punya akun? Masuk" : "Belum punya akun? Daftar sekarang";
-  }
-
-  async function handleAuthAction() {
-    const email = document.getElementById("authEmail").value;
-    const password = document.getElementById("authPassword").value;
-
-    if (!email || !password) return alert("Email & Password wajib diisi!");
-
-    if (!supabase) {
-      // Simulasi Local jika Supabase belum diisi Key-nya
-      currentUser = { email };
-      isUserPremium = false;
-      updateUserNavUI();
-      toggleAuthModal();
-      alert("Berhasil masuk (Modus Simulasi/Demo)!");
-      return;
-    }
-
-    if (isAuthRegisterMode) {
-      const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) alert(error.message);
-      else alert("Pendaftaran berhasil! Silahkan cek email konfirmasi.");
-    } else {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) alert(error.message);
-      else {
-        currentUser = data.user;
-        checkPremiumStatus();
-        toggleAuthModal();
-      }
-    }
-  }
-
-  function checkAuthSession() {
-    if (!supabase) return;
-    const session = supabase.auth.getSession();
-    if (session?.user) {
-      currentUser = session.user;
-      checkPremiumStatus();
-    }
-  }
-
-  function checkPremiumStatus() {
-    // Simulasi Cek Database Premium
-    updateUserNavUI();
-  }
-
-  function updateUserNavUI() {
-    const btn = document.getElementById("userAuthBtn");
-    if (currentUser) {
-      btn.innerHTML = `<i class="fa-solid fa-crown" style="color:${isUserPremium ? '#f5b82e' : '#fff'};"></i> ${isUserPremium ? 'VIP Active' : 'Free Member'}`;
-    } else {
-      btn.innerHTML = `<i class="fa-solid fa-user"></i> Masuk`;
-    }
-  }
-
-  function simulatePaymentSuccess() {
-    isUserPremium = true;
-    updateUserNavUI();
-    togglePremiumModal();
-    alert("Pembayaran Berhasil! Status akun kamu sekarang menjadi PREMIUM 30 Hari.");
+    showHomeView();
+    document.getElementById("gridTitle").innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> Hasil Pencarian: "${q}"`;
+    const data = await tmdbFetch("/search/multi", { query: q });
+    renderGrid((data.results || []).filter(i => i.media_type === 'movie' || i.media_type === 'tv'));
   }
 </script>
 </body>
