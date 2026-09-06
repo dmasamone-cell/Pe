@@ -3,697 +3,535 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Reelo — Nonton Film & Series Sub Indo</title>
+<title>BillyMovieZone — Nonton Film & Series Sub Indo</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230E0D10'/%3E%3Cpath d='M38 30l35 20-35 20z' fill='%23E3B23C'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Supabase JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
   :root{
     --bg: #0E0D10;
     --bg-raised: #17151A;
+    --bg-card: #141318;
     --ink: #F1ECE4;
     --ink-dim: #9C948C;
     --accent: #E3B23C;
     --accent-ink: #1A1508;
     --line: #2A262B;
-    --serif: 'Fraunces', Georgia, serif;
     --sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
+
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-behavior:smooth;}
-  body{ background:var(--bg); color:var(--ink); font-family:var(--sans); line-height:1.5; position:relative; }
+  body{ background:var(--bg); color:var(--ink); font-family:var(--sans); line-height:1.5; min-height:100vh; position:relative; padding-bottom:70px; }
   a{color:inherit; text-decoration:none;}
   button{font-family:inherit;}
   img{display:block; max-width:100%;}
 
-  *:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
-
-  body::after{
-    content:""; position:fixed; inset:0; z-index:200; pointer-events:none;
-    opacity:0.045; mix-blend-mode:overlay;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
-  .rating{ color:var(--accent); font-weight:600; }
-
-  /* ===================== LIQUID GLASS ===================== */
-  /* Efek kaca cair: distorsi lembut via SVG feDisplacementMap + backdrop-filter + specular highlight */
+  /* Liquid Glass Styles */
   .liquid-glass{
     position:relative;
     background: linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.03) 40%, rgba(255,255,255,0.08));
-    backdrop-filter: blur(14px) saturate(160%) url(#liquid-distort);
+    backdrop-filter: blur(14px) saturate(160%);
     -webkit-backdrop-filter: blur(14px) saturate(160%);
     border: 1px solid rgba(255,255,255,0.22);
-    box-shadow:
-      inset 0 1px 1px rgba(255,255,255,0.5),
-      inset 0 -6px 14px rgba(255,255,255,0.06),
-      0 8px 22px -10px rgba(0,0,0,0.55);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.5), inset 0 -6px 14px rgba(255,255,255,0.06), 0 8px 22px -10px rgba(0,0,0,0.55);
     overflow:hidden;
     isolation:isolate;
     transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
   }
   .liquid-glass::before{
-    /* specular sweep highlight di tepi atas, khas kaca cair */
-    content:"";
-    position:absolute; inset:0; z-index:1; pointer-events:none;
+    content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
     background: linear-gradient(120deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 26%, rgba(255,255,255,0) 74%, rgba(255,255,255,0.18) 100%);
     mix-blend-mode:overlay;
   }
-  .liquid-glass::after{
-    /* blob highlight bergerak lembut, kesan cairan */
-    content:"";
-    position:absolute; z-index:1; pointer-events:none;
-    width:60%; height:180%; top:-40%; left:-20%;
-    background: radial-gradient(closest-side, rgba(255,255,255,0.5), transparent 70%);
-    opacity:0.35; filter:blur(6px);
-    animation: liquidDrift 6s ease-in-out infinite;
-  }
-  @keyframes liquidDrift{
-    0%,100%{ transform:translateX(0) translateY(0); }
-    50%{ transform:translateX(140%) translateY(6%); }
-  }
-  .liquid-glass:hover{
-    transform: translateY(-2px);
-    border-color: rgba(255,255,255,0.38);
-    box-shadow:
-      inset 0 1px 1px rgba(255,255,255,0.6),
-      inset 0 -6px 16px rgba(255,255,255,0.09),
-      0 14px 30px -12px rgba(0,0,0,0.6);
-  }
-  .liquid-glass:active{ transform: translateY(0) scale(0.98); }
 
-  .btn.liquid-glass{ color:var(--ink); }
-  .btn-primary.liquid-glass{
-    background: linear-gradient(135deg, rgba(227,178,60,0.55), rgba(227,178,60,0.18));
-    color: var(--accent-ink);
-    font-weight:700;
-    border-color: rgba(227,178,60,0.55);
-  }
-  .btn-primary.liquid-glass::before{ background: linear-gradient(120deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,0) 74%, rgba(255,255,255,0.25) 100%); }
-  .btn-ghost.liquid-glass{ background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02)); }
+  /* Header */
+  header{ position:sticky; top:0; z-index:50; background:rgba(14,13,16,0.85); backdrop-filter:blur(12px); border-bottom:1px solid var(--line); }
+  .nav-wrap{ max-width:1280px; margin:0 auto; display:flex; align-items:center; gap:20px; padding:14px 20px; }
+  .logo{ font-weight:800; font-size:1.4rem; color:var(--accent); cursor:pointer; letter-spacing:-0.5px; }
+  .logo span{ color:#fff; }
+  
+  .search-box{ margin-left:auto; display:flex; align-items:center; background:var(--bg-raised); border:1px solid var(--line); border-radius:20px; padding:7px 14px; gap:8px; width:220px; }
+  .search-box input{ background:none; border:none; outline:none; color:var(--ink); font-size:0.85rem; width:100%; }
+  .search-box i{ color:var(--ink-dim); font-size:0.9rem; cursor:pointer; }
 
-  .scroll-btn.liquid-glass{ border-radius:50%; }
+  .user-nav-btn{ background:var(--accent); color:var(--accent-ink); border:none; padding:7px 16px; border-radius:20px; font-weight:700; font-size:0.8rem; cursor:pointer; }
 
-  /* Slider liquid glass */
-  .lg-slider-wrap{ display:flex; align-items:center; gap:12px; margin-top:16px; }
-  .lg-slider-label{ font-size:0.78rem; color:var(--ink-dim); min-width:44px; }
-  .lg-slider{
-    position:relative;
-    flex:1;
-    height:34px;
-    border-radius:100px;
-    display:flex; align-items:center;
-    padding:0 4px;
-  }
-  .lg-slider-track{
-    position:relative; z-index:2;
-    width:100%; height:6px; border-radius:100px;
-    background: rgba(255,255,255,0.12);
-    overflow:hidden;
-  }
-  .lg-slider-fill{
-    height:100%; border-radius:100px;
-    background: linear-gradient(90deg, var(--accent), #f0c355);
-    width:45%;
-    box-shadow: 0 0 10px rgba(227,178,60,0.55);
-    transition:width .05s linear;
-  }
-  .lg-slider-thumb{
-    position:absolute; z-index:3; top:50%; left:45%;
-    width:22px; height:22px; border-radius:50%;
-    transform:translate(-50%,-50%);
-    background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.5));
-    border:1px solid rgba(255,255,255,0.7);
-    box-shadow: 0 3px 10px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.9);
-    cursor:grab; pointer-events:auto;
-  }
-  .lg-slider-thumb:active{ cursor:grabbing; }
-  .lg-slider input[type="range"]{
-    position:absolute; inset:0; width:100%; height:100%;
-    opacity:0; cursor:pointer; margin:0; z-index:4;
-  }
-  /* ===================== END LIQUID GLASS ===================== */
-
-  /* ---------- Header ---------- */
-  header{ position:sticky; top:0; z-index:50; background:rgba(14,13,16,0.72); backdrop-filter:blur(10px); border-bottom:1px solid transparent; transition:background .25s ease, border-color .25s ease; }
-  header.scrolled{ background:rgba(14,13,16,0.94); border-color:var(--line); }
-  .nav-wrap{ max-width:1280px; margin:0 auto; display:flex; align-items:center; gap:32px; padding:16px 24px; }
-  .logo{ font-family:var(--serif); font-size:1.55rem; display:flex; align-items:baseline; gap:2px; flex-shrink:0; }
-  .logo em{ font-style:italic; color:var(--accent); }
-  nav.main-links{ display:flex; gap:26px; font-size:0.92rem; color:var(--ink-dim); }
-  nav.main-links a:hover{ color:var(--ink); }
-  .search-box{ margin-left:auto; display:flex; align-items:center; background:var(--bg-raised); border:1px solid var(--line); border-radius:7px; padding:8px 12px; gap:8px; width:250px; transition:border-color .2s ease; }
-  .search-box:focus-within{ border-color:var(--accent); }
-  .search-box input{ background:none; border:none; outline:none; color:var(--ink); font-size:0.88rem; width:100%; }
-  .search-box input::placeholder{ color:var(--ink-dim); }
-  .search-box svg{ flex-shrink:0; opacity:0.6; }
-  .search-clear{ background:none; border:none; color:var(--ink-dim); cursor:pointer; font-size:0.78rem; display:none; padding:2px; }
-  .search-clear:hover{ color:var(--ink); }
-  .burger{ display:none; background:none; border:none; color:var(--ink); cursor:pointer; font-size:1.3rem; }
-  .mobile-drawer{ display:none; flex-direction:column; padding:6px 24px 18px; gap:2px; border-bottom:1px solid var(--line); }
-  .mobile-drawer.open{ display:flex; }
-  .mobile-drawer a{ padding:10px 0; color:var(--ink-dim); border-bottom:1px solid var(--line); font-size:0.95rem; }
-  .mobile-drawer a:last-child{ border-bottom:none; }
-
-  @media (max-width: 860px){
-    nav.main-links{ display:none; }
-    .search-box{ width:auto; flex:1; }
-    .burger{ display:block; }
-  }
-
-  .genre-strip{ max-width:1280px; margin:0 auto; padding:16px 24px; display:flex; gap:10px; overflow-x:auto; border-bottom:1px solid var(--line); }
+  .genre-strip{ max-width:1280px; margin:0 auto; padding:12px 20px; display:flex; gap:10px; overflow-x:auto; border-bottom:1px solid var(--line); }
   .genre-strip::-webkit-scrollbar{ height:0; }
-  .genre-chip{ flex-shrink:0; display:inline-flex; align-items:center; padding:7px 16px; border:1px solid var(--line); border-radius:100px; font-size:0.83rem; color:var(--ink-dim); white-space:nowrap; cursor:pointer; background:none; transition:all .15s ease; }
+  .genre-chip{ flex-shrink:0; padding:6px 14px; border:1px solid var(--line); border-radius:100px; font-size:0.8rem; color:var(--ink-dim); cursor:pointer; background:none; }
   .genre-chip.active{ background:var(--ink); color:var(--bg); border-color:var(--ink); font-weight:600; }
-  .genre-chip:hover{ color:var(--ink); border-color:var(--ink-dim); }
-  .chip-dot{ width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:7px; flex-shrink:0; }
 
-  /* ---------- Hero carousel ---------- */
-  .hero{ position:relative; min-height:76vh; overflow:hidden; border-bottom:1px solid var(--line); }
-  .hero-slide{ position:absolute; inset:0; display:flex; align-items:flex-end; opacity:0; transform:scale(1.03); transition:opacity .8s ease, transform 1.2s ease; pointer-events:none; }
-  .hero-slide.active{ opacity:1; transform:scale(1); pointer-events:auto; }
-  .hero-slide::before{ content:""; position:absolute; inset:0; background: linear-gradient(180deg, rgba(14,13,16,0.1) 0%, rgba(14,13,16,0.65) 60%, var(--bg) 100%), linear-gradient(110deg, hsl(var(--hue) 55% 10%) 0%, hsl(calc(var(--hue) + 30) 45% 14%) 55%, #141215 100%); }
-  .hero-slide::after{ content:""; position:absolute; inset:0; background:radial-gradient(circle at 18% 25%, hsl(var(--hue) 70% 55% / 0.25), transparent 55%); }
-  .hero-content{ position:relative; z-index:2; max-width:1280px; margin:0 auto; padding:60px 24px 52px; width:100%; display:grid; grid-template-columns:1fr 250px; gap:40px; align-items:end; }
-  .hero-tag{ display:inline-flex; align-items:center; gap:7px; font-size:0.82rem; color:var(--ink-dim); margin-bottom:16px; }
-  .hero-tag .dot{ width:6px; height:6px; border-radius:50%; background:var(--accent); }
-  .hero-title{ font-family:var(--serif); font-weight:600; font-size:clamp(2.2rem, 4.8vw, 3.9rem); line-height:1.03; max-width:620px; margin-bottom:16px; }
-  .hero-meta{ display:flex; align-items:center; color:var(--ink-dim); font-size:0.9rem; margin-bottom:18px; flex-wrap:wrap; }
-  .hero-meta > span{ padding:0 12px; border-left:1px solid var(--line); }
-  .hero-meta > span:first-child{ border-left:none; padding-left:0; }
-  .hero-desc{ color:var(--ink-dim); max-width:540px; font-size:0.96rem; margin-bottom:24px; }
-  .btn-row{ display:flex; gap:12px; flex-wrap:wrap; }
-  .btn{ display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:7px; font-size:0.92rem; font-weight:600; cursor:pointer; border:1px solid transparent; transition:all .15s ease; }
-  .btn-primary{ background:var(--accent); color:var(--accent-ink); }
-  .btn-primary:hover{ background:#f0c355; }
-  .btn-ghost{ border-color:var(--line); color:var(--ink); background:rgba(255,255,255,0.03); }
-  .btn-ghost:hover{ border-color:var(--ink-dim); }
-  .hero-poster{ z-index:2; }
-  .hero-dots{ position:absolute; z-index:3; bottom:24px; right:24px; display:flex; gap:8px; }
-  .hero-dot{ width:22px; height:3px; border-radius:2px; background:var(--line); cursor:pointer; border:none; }
-  .hero-dot.active{ background:var(--accent); }
+  /* Section Layouts */
+  .container{ max-width:1280px; margin:0 auto; padding:24px 20px; }
+  .row{ margin-bottom:36px; }
+  .row-title{ font-size:1.3rem; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+  .row-title i{ color:var(--accent); }
 
-  @media (max-width:760px){
-    .hero-content{ grid-template-columns:1fr; }
-    .hero-poster{ display:none; }
-  }
+  /* Grid Film */
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:18px; }
+  .card{ background:var(--bg-card); border-radius:10px; overflow:hidden; border:1px solid var(--line); cursor:pointer; transition:transform 0.2s; position:relative; }
+  .card:hover{ transform:translateY(-5px); border-color:var(--ink-dim); }
+  .card-poster{ position:relative; aspect-ratio:2/3; width:100%; overflow:hidden; }
+  .card-poster img{ width:100%; height:100%; object-fit:cover; }
+  .badge-rating{ position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.75); color:var(--accent); font-size:0.75rem; font-weight:700; padding:2px 6px; border-radius:4px; }
+  .card-info{ padding:10px; }
+  .card-title{ font-size:0.85rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .card-sub{ font-size:0.75rem; color:var(--ink-dim); margin-top:3px; }
 
-  /* ---------- Generative poster art ---------- */
-  .poster{ position:relative; aspect-ratio:2/3; border-radius:8px; overflow:hidden; background:hsl(var(--hue) 30% 11%); border:1px solid var(--line); transition:transform .25s ease, border-color .25s ease; }
-  .poster .art-glow{ position:absolute; inset:-25%; background:radial-gradient(circle at var(--gx) var(--gy), hsl(var(--hue) 70% 55% / 0.55), transparent 60%); }
-  .poster .art-band{ position:absolute; inset:0; background:linear-gradient(var(--ang), transparent 45%, hsl(calc(var(--hue) + 25) 60% 40% / 0.4) 100%); }
-  .poster .art-mono{ position:absolute; right:-8px; bottom:-18px; font-family:var(--serif); font-weight:600; font-size:5.6rem; line-height:1; color:rgba(255,255,255,0.09); z-index:1; pointer-events:none; user-select:none; }
-  .poster .badge{ position:absolute; top:8px; left:8px; background:rgba(14,13,16,0.82); border:1px solid var(--line); color:var(--accent); font-size:0.7rem; font-weight:600; padding:2px 7px; border-radius:5px; z-index:2; }
-  .poster .fav{ position:absolute; top:6px; right:6px; z-index:3; width:26px; height:26px; border-radius:50%; background:rgba(14,13,16,0.65); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink); opacity:0; transition:opacity .15s ease, background .15s ease; }
-  .card:hover .fav, .fav:focus-visible{ opacity:1; }
-  .fav.on{ opacity:1; color:var(--accent); }
-  .poster .play{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(14,13,16,0); opacity:0; transition:all .2s ease; z-index:2; }
-  .card:hover .play{ opacity:1; background:rgba(14,13,16,0.35); }
-  .card:hover .poster{ transform:translateY(-4px); border-color:var(--ink-dim); }
-  .poster .poster-title{ position:absolute; left:9px; right:9px; bottom:9px; z-index:2; font-family:var(--serif); font-weight:600; font-size:0.82rem; line-height:1.2; color:#fff; text-shadow:0 2px 10px rgba(0,0,0,0.7); }
+  /* DETAIL VIEW */
+  #detailView{ display:none; max-width:1000px; margin:0 auto; padding-bottom:80px; }
+  .back-btn{ display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.1); border:none; color:#fff; cursor:pointer; margin-bottom:15px; }
 
-  section.row{ max-width:1280px; margin:0 auto; padding:42px 24px; }
-  .row-head{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:20px; gap:16px; }
-  .row-title{ font-family:var(--serif); font-weight:600; font-size:1.55rem; margin-bottom:4px; }
-  .row-sub{ font-size:0.86rem; color:var(--ink-dim); }
-  .row-controls{ display:flex; gap:8px; align-items:center; flex-shrink:0; }
-  .scroll-btn{ width:30px; height:30px; border-radius:50%; border:1px solid var(--line); background:var(--bg-raised); color:var(--ink-dim); cursor:pointer; display:flex; align-items:center; justify-content:center; }
-  .scroll-btn:hover{ color:var(--ink); border-color:var(--ink-dim); }
+  .backdrop-container{ position:relative; width:100%; aspect-ratio:16/9; max-height:400px; border-radius:16px; overflow:hidden; background:#000; border:1px solid var(--line); }
+  .backdrop-img{ width:100%; height:100%; object-fit:cover; opacity:0.6; }
+  .backdrop-overlay{ position:absolute; inset:0; background:linear-gradient(180deg, transparent 40%, var(--bg) 100%); }
+  
+  .btn-tonton{ position:absolute; bottom:20px; right:20px; background:var(--accent); color:var(--accent-ink); border:none; padding:12px 28px; border-radius:30px; font-weight:700; font-size:0.95rem; cursor:pointer; display:flex; align-items:center; gap:8px; box-shadow:0 10px 20px rgba(245,184,46,0.3); }
+  
+  /* Video Player Box */
+  .player-box{ display:none; width:100%; aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden; margin-bottom:20px; border:1px solid var(--line); }
+  .player-box iframe{ width:100%; height:100%; border:none; }
+  .server-list{ display:none; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+  .server-chip{ background:var(--bg-raised); border:1px solid var(--line); color:var(--ink-dim); padding:6px 14px; border-radius:6px; font-size:0.8rem; cursor:pointer; }
+  .server-chip.active{ border-color:var(--accent); color:var(--accent); font-weight:600; }
+  .server-chip.vip-only{ border-color:var(--accent); position:relative; }
 
-  .card-scroll{ display:grid; grid-auto-flow:column; grid-auto-columns:168px; gap:18px; overflow-x:auto; padding-bottom:6px; scroll-behavior:smooth; }
-  .card-scroll::-webkit-scrollbar{ height:0; }
-  .card{ cursor:pointer; }
-  .card-title{ margin-top:10px; font-size:0.88rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .card-sub{ display:flex; align-items:center; font-size:0.76rem; color:var(--ink-dim); margin-top:2px; }
-  .card-sub span{ padding:0 7px; }
-  .card-sub span:first-child{ padding-left:0; }
-  .card-sub span + span{ border-left:1px solid var(--line); }
-  .progress-bar{ height:3px; background:var(--line); border-radius:2px; margin-top:9px; overflow:hidden; }
-  .progress-fill{ height:100%; background:var(--accent); border-radius:2px; }
+  /* Info Details */
+  .detail-header{ display:flex; gap:16px; margin-top:20px; align-items:flex-start; }
+  .mini-poster{ width:90px; border-radius:8px; overflow:hidden; border:1px solid var(--line); flex-shrink:0; }
+  .detail-meta-head{ flex:1; }
+  .detail-title{ font-size:1.6rem; font-weight:700; line-height:1.2; }
+  .pills-row{ display:flex; align-items:center; gap:8px; margin-top:8px; flex-wrap:wrap; font-size:0.8rem; }
+  .pill{ background:var(--bg-raised); padding:3px 8px; border-radius:4px; color:var(--ink-dim); border:1px solid var(--line); }
+  .pill-yellow{ background:rgba(245,184,46,0.15); color:var(--accent); border:none; font-weight:700; }
 
-  .top10-scroll{ display:grid; grid-auto-flow:column; grid-auto-columns:150px; gap:0; overflow-x:auto; padding-bottom:6px; scroll-behavior:smooth; }
-  .top10-item{ display:flex; align-items:flex-end; position:relative; cursor:pointer; }
-  .top10-num{ font-family:var(--serif); font-weight:600; font-size:5.2rem; color:transparent; -webkit-text-stroke:1.5px var(--line); line-height:1; margin-right:-20px; z-index:0; user-select:none; }
-  .top10-item .poster{ width:108px; z-index:1; }
+  .tags-list{ display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+  .tag-item{ background:rgba(255,255,255,0.05); border:1px solid var(--line); color:var(--ink-dim); font-size:0.75rem; padding:4px 12px; border-radius:20px; }
 
-  .grid-films{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:20px; }
-  .empty-state{ color:var(--ink-dim); font-size:0.9rem; padding:22px 0 6px; text-align:center; display:none; }
-  .empty-state.show{ display:block; }
+  .rating-box{ background:var(--bg-card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-top:20px; }
+  .rating-num{ font-size:1.1rem; font-weight:700; color:var(--accent); }
 
-  .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--bg); padding:11px 20px; border-radius:8px; font-size:0.85rem; font-weight:600; opacity:0; pointer-events:none; transition:all .25s ease; z-index:120; }
-  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  .info-block{ margin-top:24px; }
+  .info-title{ font-size:1rem; font-weight:700; margin-bottom:8px; }
+  .synopsis-text{ color:var(--ink-dim); font-size:0.88rem; line-height:1.6; }
 
-  /* ---------- Quick-view modal ---------- */
-  .modal-backdrop{ position:fixed; inset:0; z-index:110; background:rgba(8,7,9,0.72); display:flex; align-items:center; justify-content:center; padding:24px; opacity:0; pointer-events:none; transition:opacity .2s ease; }
+  .meta-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px; }
+  .meta-card{ background:var(--bg-card); border:1px solid var(--line); border-radius:100px; padding:12px 20px; }
+  .meta-label{ font-size:0.7rem; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.5px; font-weight:600; display:flex; align-items:center; gap:6px; }
+  .meta-val{ font-size:0.9rem; font-weight:600; margin-top:2px; }
+
+  .cast-scroll{ display:flex; gap:14px; overflow-x:auto; padding-bottom:10px; margin-top:12px; }
+  .cast-card{ flex-shrink:0; width:80px; text-align:center; }
+  .cast-img{ width:80px; height:80px; border-radius:50%; object-fit:cover; border:1px solid var(--line); background:var(--bg-raised); }
+  .cast-name{ font-size:0.75rem; font-weight:600; margin-top:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  /* Modals (Auth & Premium Billing) */
+  .modal-backdrop{ position:fixed; inset:0; z-index:110; background:rgba(8,7,9,0.85); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; padding:24px; opacity:0; pointer-events:none; transition:opacity .2s ease; }
   .modal-backdrop.show{ opacity:1; pointer-events:auto; }
-  .modal{ background:var(--bg-raised); border:1px solid var(--line); border-radius:14px; max-width:720px; width:100%; max-height:88vh; overflow-y:auto; display:grid; grid-template-columns:230px 1fr; box-shadow:0 40px 80px -20px rgba(0,0,0,0.6); transform:translateY(14px) scale(0.98); transition:transform .25s ease; position:relative; }
-  .modal-backdrop.show .modal{ transform:translateY(0) scale(1); }
-  .modal-art{ position:relative; }
-  .modal-art .poster{ border-radius:0; border:none; height:100%; }
-  .modal-body{ padding:26px 26px 28px; }
-  .modal-close{ position:absolute; top:12px; right:12px; z-index:5; width:30px; height:30px; border-radius:50%; background:rgba(14,13,16,0.7); border:1px solid var(--line); color:var(--ink); cursor:pointer; }
-  .modal-title{ font-family:var(--serif); font-weight:600; font-size:1.5rem; margin-bottom:10px; }
-  .modal-meta{ display:flex; align-items:center; color:var(--ink-dim); font-size:0.88rem; margin-bottom:14px; }
-  .modal-meta span{ padding:0 10px; border-left:1px solid var(--line); }
-  .modal-meta span:first-child{ border-left:none; padding-left:0; }
-  .modal-desc{ color:var(--ink-dim); font-size:0.94rem; margin-bottom:22px; }
-  @media (max-width:600px){ .modal{ grid-template-columns:1fr; } .modal-art .poster{ border-radius:14px 14px 0 0; aspect-ratio:16/9; } }
+  .auth-card{ background:var(--bg-raised); border:1px solid var(--line); border-radius:16px; padding:28px; width:100%; max-width:380px; text-align:center; position:relative; }
+  .auth-card h2{ font-size:1.3rem; margin-bottom:10px; color:var(--accent); }
+  .auth-card input{ width:100%; padding:12px; margin-bottom:12px; background:var(--bg-card); border:1px solid var(--line); border-radius:8px; color:#fff; font-size:0.9rem; }
+  .auth-card button.btn-submit{ width:100%; padding:12px; background:var(--accent); color:var(--accent-ink); border:none; border-radius:8px; font-weight:700; cursor:pointer; }
+  .modal-close-icon{ position:absolute; top:14px; right:16px; cursor:pointer; color:var(--ink-dim); }
 
-  footer{ border-top:1px solid var(--line); padding:36px 24px 28px; color:var(--ink-dim); font-size:0.85rem; }
-  .footer-inner{ max-width:1280px; margin:0 auto; display:flex; justify-content:space-between; flex-wrap:wrap; gap:20px; }
-  .footer-links{ display:flex; gap:20px; }
-  .footer-links a:hover{ color:var(--ink); }
+  /* Pricing / Subscription Box */
+  .plan-box{ background:linear-gradient(135deg, rgba(227,178,60,0.2), rgba(0,0,0,0.5)); border:1px solid var(--accent); border-radius:12px; padding:20px; margin-top:15px; text-align:left; }
+  .plan-price{ font-size:1.5rem; font-weight:800; color:var(--accent); margin:10px 0; }
 
-  /* ---------- Bottom nav (mobile) ---------- */
-  .bottom-nav{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:60; display:none; gap:2px; background:rgba(23,21,26,0.92); backdrop-filter:blur(14px); border:1px solid var(--line); border-radius:100px; padding:7px 8px; box-shadow:0 20px 40px -18px rgba(0,0,0,0.65); }
-  .bottom-nav-item{ display:flex; flex-direction:column; align-items:center; gap:3px; background:none; border:none; color:var(--ink-dim); cursor:pointer; padding:5px 13px; border-radius:100px; font-size:0.64rem; font-weight:600; min-width:54px; transition:color .15s ease; }
-  .bottom-nav-item .icon-wrap{ width:29px; height:29px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:background .15s ease, color .15s ease; }
-  .bottom-nav-item.active{ color:var(--accent); }
-  .bottom-nav-item.active .icon-wrap{ background:var(--accent); color:var(--accent-ink); }
-  .bottom-nav-item:hover{ color:var(--ink); }
-
-  @keyframes pulseRing{ 0%{ box-shadow:0 0 0 0 rgba(227,178,60,0.45); } 100%{ box-shadow:0 0 0 12px rgba(227,178,60,0); } }
-  .genre-strip.pulse{ animation:pulseRing 0.7s ease-out 2; border-radius:8px; }
-
-  @media (max-width:860px){
-    .bottom-nav{ display:flex; }
-    body{ padding-bottom:90px; }
-  }
-
-  @media (prefers-reduced-motion: reduce){
-    html{ scroll-behavior:auto; }
-    .hero-slide{ transition:opacity .3s linear; transform:none !important; }
-    .card:hover .poster{ transform:none; }
-    .card-scroll, .top10-scroll{ scroll-behavior:auto; }
-    .liquid-glass::after{ animation:none; }
-  }
+  /* Bottom Nav Mobile */
+  .bottom-nav{ position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:rgba(20,19,24,0.92); backdrop-filter:blur(12px); border:1px solid var(--line); border-radius:30px; padding:8px 20px; display:flex; gap:24px; z-index:100; box-shadow:0 10px 25px rgba(0,0,0,0.6); }
+  .nav-item{ background:none; border:none; color:var(--ink-dim); font-size:0.7rem; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; }
+  .nav-item.active, .nav-item:hover{ color:var(--accent); }
+  .nav-item i{ font-size:1rem; }
 </style>
 </head>
 <body>
 
-<!-- SVG filter untuk distorsi kaca cair (dipakai oleh backdrop-filter: url(#liquid-distort)) -->
-<svg width="0" height="0" style="position:absolute">
-  <filter id="liquid-distort">
-    <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="7" result="noise"/>
-    <feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="R" yChannelSelector="G"/>
-  </filter>
-</svg>
-
-<header id="site-header">
+<header>
   <div class="nav-wrap">
-    <div class="logo">Reel<em>o</em></div>
-    <nav class="main-links">
-      <a href="#trending">Trending</a>
-      <a href="#lanjutkan">Lanjutkan Nonton</a>
-      <a href="#top10">Top 10</a>
-      <a href="#terbaru">Terbaru</a>
-      <a href="#rating">Rating Tertinggi</a>
-    </nav>
+    <div class="logo" onclick="showHomeView()">Billy<span>MovieZone</span></div>
     <div class="search-box">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="search-input" placeholder="Cari judul film atau series..." aria-label="Cari judul">
-      <button class="search-clear" id="search-clear" aria-label="Hapus pencarian">✕</button>
+      <input type="text" id="searchInput" placeholder="Cari film / TV..." onkeypress="if(event.key==='Enter') executeSearch()">
+      <i class="fa-solid fa-magnifying-glass" onclick="executeSearch()"></i>
     </div>
-    <button class="burger" id="burger-btn" aria-label="Buka menu" aria-expanded="false">☰</button>
+    <button class="user-nav-btn" id="userAuthBtn" onclick="toggleAuthModal()"><i class="fa-solid fa-user"></i> Masuk</button>
   </div>
-  <div class="mobile-drawer" id="mobile-drawer">
-    <a href="#trending">Trending</a>
-    <a href="#lanjutkan">Lanjutkan Nonton</a>
-    <a href="#top10">Top 10</a>
-    <a href="#terbaru">Terbaru</a>
-    <a href="#rating">Rating Tertinggi</a>
-  </div>
-  <div class="genre-strip" id="genre-strip"></div>
+  <div class="genre-strip" id="genreStrip"></div>
 </header>
 
-<section class="hero" id="hero"></section>
-
-<section class="row" id="lanjutkan">
-  <div class="row-head">
-    <div><h2 class="row-title">Lanjutkan nonton</h2><div class="row-sub">Teruskan dari yang tertinggal</div></div>
-    <div class="row-controls">
-      <button class="scroll-btn liquid-glass" data-target="continue-list" data-dir="-1" aria-label="Geser kiri">‹</button>
-      <button class="scroll-btn liquid-glass" data-target="continue-list" data-dir="1" aria-label="Geser kanan">›</button>
-    </div>
-  </div>
-  <div class="card-scroll shelf" id="continue-list"></div>
-  <div class="empty-state">Tidak ada judul yang cocok.</div>
-</section>
-
-<section class="row" id="trending">
-  <div class="row-head">
-    <div><h2 class="row-title">Trending minggu ini</h2><div class="row-sub">Paling banyak ditonton pekan ini</div></div>
-    <div class="row-controls">
-      <button class="scroll-btn liquid-glass" data-target="trending-list" data-dir="-1" aria-label="Geser kiri">‹</button>
-      <button class="scroll-btn liquid-glass" data-target="trending-list" data-dir="1" aria-label="Geser kanan">›</button>
-    </div>
-  </div>
-  <div class="card-scroll shelf" id="trending-list"></div>
-  <div class="empty-state">Tidak ada judul yang cocok.</div>
-</section>
-
-<section class="row" id="top10">
-  <div class="row-head">
-    <div><h2 class="row-title">Top 10 hari ini</h2><div class="row-sub">Diperbarui setiap hari berdasarkan jumlah penonton</div></div>
-    <div class="row-controls">
-      <button class="scroll-btn liquid-glass" data-target="top10-list" data-dir="-1" aria-label="Geser kiri">‹</button>
-      <button class="scroll-btn liquid-glass" data-target="top10-list" data-dir="1" aria-label="Geser kanan">›</button>
-    </div>
-  </div>
-  <div class="top10-scroll shelf" id="top10-list"></div>
-  <div class="empty-state">Tidak ada judul yang cocok.</div>
-</section>
-
-<section class="row" id="terbaru">
-  <div class="row-head">
-    <div><h2 class="row-title">Sedang tayang</h2><div class="row-sub">Judul baru yang baru saja ditambahkan</div></div>
-  </div>
-  <div class="grid-films shelf" id="latest-list"></div>
-  <div class="empty-state">Tidak ada judul untuk filter ini.</div>
-</section>
-
-<section class="row" id="rating">
-  <div class="row-head">
-    <div><h2 class="row-title">Rating tertinggi</h2><div class="row-sub">Pilihan kritikus dan penonton</div></div>
-    <div class="row-controls">
-      <button class="scroll-btn liquid-glass" data-target="toprated-list" data-dir="-1" aria-label="Geser kiri">‹</button>
-      <button class="scroll-btn liquid-glass" data-target="toprated-list" data-dir="1" aria-label="Geser kanan">›</button>
-    </div>
-  </div>
-  <div class="card-scroll shelf" id="toprated-list"></div>
-  <div class="empty-state">Tidak ada judul yang cocok.</div>
-</section>
-
-<footer>
-  <div class="footer-inner">
-    <div class="logo" style="font-size:1.2rem;">Reel<em>o</em></div>
-    <div class="footer-links">
-      <a href="#">Tentang</a>
-      <a href="#">Kontak</a>
-      <a href="#">Kebijakan Privasi</a>
-      <a href="#">Syarat Layanan</a>
-    </div>
-  </div>
-</footer>
-
-<nav class="bottom-nav" aria-label="Navigasi utama">
-  <button class="bottom-nav-item active" data-action="home" aria-label="Beranda">
-    <span class="icon-wrap"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11.5L12 4l8 7.5"/><path d="M6 10v10h12V10"/></svg></span>
-    Beranda
-  </button>
-  <button class="bottom-nav-item" data-action="search" aria-label="Cari">
-    <span class="icon-wrap"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-    Cari
-  </button>
-  <button class="bottom-nav-item" data-action="genre" aria-label="Genre">
-    <span class="icon-wrap"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg></span>
-    Genre
-  </button>
-  <button class="bottom-nav-item" data-action="populer" aria-label="Populer">
-    <span class="icon-wrap"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3c1.2 3.6-3.2 4.8-3.2 8.2a3.2 3.2 0 006.4 0c0-1.4-.6-2.2-.6-2.2s1.6.9 1.6 3.4a4.8 4.8 0 11-9.6 0c0-4.4 3.6-5.3 4.4-9.4.4.6.7 1.2 1 0z"/></svg></span>
-    Populer
-  </button>
-  <button class="bottom-nav-item" data-action="install" aria-label="Instal aplikasi">
-    <span class="icon-wrap"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M7.5 10.5L12 15l4.5-4.5"/><path d="M5 19h14"/></svg></span>
-    Install
-  </button>
-</nav>
-
-<div class="modal-backdrop" id="modal-backdrop">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <button class="modal-close" id="modal-close" aria-label="Tutup">✕</button>
-    <div class="modal-art" id="modal-art"></div>
-    <div class="modal-body">
-      <h3 class="modal-title" id="modal-title"></h3>
-      <div class="modal-meta" id="modal-meta"></div>
-      <p class="modal-desc" id="modal-desc"></p>
-      <div class="btn-row">
-        <button class="btn btn-primary liquid-glass">▶ Tonton sekarang</button>
-        <button class="btn btn-ghost liquid-glass" data-fav>+ Simpan ke daftar</button>
-      </div>
-      <div class="lg-slider-wrap">
-        <span class="lg-slider-label">🔊 Volume</span>
-        <div class="lg-slider liquid-glass" id="volume-slider">
-          <div class="lg-slider-track"><div class="lg-slider-fill" id="volume-fill"></div></div>
-          <div class="lg-slider-thumb" id="volume-thumb"></div>
-          <input type="range" min="0" max="100" value="45" id="volume-range" aria-label="Volume">
-        </div>
-      </div>
-    </div>
+<!-- BERANDA VIEW -->
+<div class="container" id="homeView">
+  <div class="row">
+    <div class="row-title" id="gridTitle"><i class="fa-solid fa-fire"></i> Trending Minggu Ini</div>
+    <div class="grid" id="movieGrid"></div>
   </div>
 </div>
 
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<!-- HALAMAN DETAIL FILM VIEW -->
+<div class="container" id="detailView">
+  <button class="back-btn" onclick="showHomeView()"><i class="fa-solid fa-arrow-left"></i></button>
+
+  <!-- Video Player Box -->
+  <div class="player-box" id="playerBox">
+    <iframe id="videoIframe" allowfullscreen></iframe>
+  </div>
+  <div class="server-list" id="serverList"></div>
+
+  <!-- Hero Backdrop Gambar Header -->
+  <div class="backdrop-container" id="backdropContainer">
+    <img src="" id="detailBackdrop" class="backdrop-img" alt="Backdrop">
+    <div class="backdrop-overlay"></div>
+    <button class="btn-tonton" id="btnTonton" onclick="startStreaming()"><i class="fa-solid fa-play"></i> Tonton</button>
+  </div>
+
+  <!-- Header Info -->
+  <div class="detail-header">
+    <div class="mini-poster"><img src="" id="detailPoster" alt="Poster"></div>
+    <div class="detail-meta-head">
+      <h1 class="detail-title" id="detailTitle">Title</h1>
+      <div class="pills-row">
+        <span class="pill pill-yellow"><i class="fa-solid fa-star"></i> <span id="detailRating">6.3</span></span>
+        <span class="pill" id="detailYear">2026</span>
+        <span class="pill" id="detailRuntime">86 menit</span>
+        <span class="pill" id="detailPg">PG-13</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tags-list" id="detailTags"></div>
+
+  <div class="rating-box">
+    <div class="rating-num"><i class="fa-solid fa-star"></i> <span id="ratingScore">6.3</span> / 10 <span style="font-size:0.75rem; color:var(--ink-dim);" id="ratingCount">(189 ratings)</span></div>
+  </div>
+
+  <div class="info-block">
+    <div class="info-title">Sinopsis</div>
+    <p class="synopsis-text" id="detailOverview">Sinopsis film...</p>
+  </div>
+
+  <div class="meta-grid">
+    <div class="meta-card">
+      <div class="meta-label"><i class="fa-solid fa-clapperboard"></i> Sutradara</div>
+      <div class="meta-val" id="detailDirector">-</div>
+    </div>
+    <div class="meta-card">
+      <div class="meta-label"><i class="fa-solid fa-circle-info"></i> Status</div>
+      <div class="meta-val" id="detailStatus">Released</div>
+    </div>
+  </div>
+
+  <div class="info-block">
+    <div class="info-title">Pemeran</div>
+    <div class="cast-scroll" id="castContainer"></div>
+  </div>
+</div>
+
+<!-- MODAL AUTH / LOGIN / REGISTER -->
+<div class="modal-backdrop" id="authModal">
+  <div class="auth-card">
+    <span class="modal-close-icon" onclick="toggleAuthModal()">✕</span>
+    <h2 id="authTitle">Masuk ke BillyMovieZone</h2>
+    <p style="font-size:0.8rem; color:var(--ink-dim); margin-bottom:15px;" id="authSub">Akses fitur simpan favorit & server VIP Premium</p>
+    
+    <input type="email" id="authEmail" placeholder="Alamat Email...">
+    <input type="password" id="authPassword" placeholder="Kata Sandi...">
+    
+    <button class="btn-submit" id="authSubmitBtn" onclick="handleAuthAction()">Masuk</button>
+    <p style="font-size:0.75rem; color:var(--ink-dim); margin-top:15px; cursor:pointer;" onclick="switchAuthMode()" id="authSwitchText">Belum punya akun? Daftar sekarang</p>
+  </div>
+</div>
+
+<!-- MODAL PREMIUM SUBSCRIPTION BILLING -->
+<div class="modal-backdrop" id="premiumModal">
+  <div class="auth-card" style="max-width:420px;">
+    <span class="modal-close-icon" onclick="togglePremiumModal()">✕</span>
+    <h2><i class="fa-solid fa-crown" style="color:var(--accent);"></i> Beli Akses Premium</h2>
+    <p style="font-size:0.8rem; color:var(--ink-dim);">Nikmati Server VIP Bebas Iklan & Kualitas HD 1080p</p>
+    
+    <div class="plan-box">
+      <div style="font-size:0.85rem; font-weight:700;">Paket Premium 1 Bulan</div>
+      <div class="plan-price">Rp 15.000 <span style="font-size:0.75rem; font-weight:normal; color:var(--ink-dim);">/ 30 Hari</span></div>
+      <ul style="font-size:0.75rem; color:var(--ink-dim); padding-left:18px; margin-top:8px;">
+        <li>Akses penuh ke Server VidSrc VIP & SuperEmbed</li>
+        <li>Bebas Iklan Pop-up</li>
+        <li>Kecepatan Buffer Maksimal</li>
+      </ul>
+    </div>
+
+    <!-- QRIS SIMULASI -->
+    <div style="margin-top:15px; background:#fff; padding:10px; border-radius:8px; display:inline-block;">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=BILLYMOVIEZONE_PREMIUM_SUBSCRIPTION" alt="QRIS Billing" style="width:130px; height:130px;">
+    </div>
+    <p style="font-size:0.7rem; color:var(--ink-dim); margin-top:5px;">Scan via QRIS (Gopay, DANA, OVO, ShopeePay)</p>
+
+    <button class="btn-submit" style="margin-top:15px;" onclick="simulatePaymentSuccess()">Konfirmasi Pembayaran</button>
+  </div>
+</div>
+
+<!-- Bottom Navigation Bar Mobile -->
+<div class="bottom-nav">
+  <button class="nav-item active" onclick="showHomeView()"><i class="fa-solid fa-house"></i><span>Beranda</span></button>
+  <button class="nav-item" onclick="document.getElementById('searchInput').focus()"><i class="fa-solid fa-magnifying-glass"></i><span>Cari</span></button>
+  <button class="nav-item" onclick="togglePremiumModal()"><i class="fa-solid fa-crown" style="color:var(--accent);"></i><span>VIP</span></button>
+</div>
 
 <script>
-  const genres = ["Semua","Action","Drama","Horror","Comedy","Thriller","Romance","Sci-Fi","Animasi","Fantasy","Documentary"];
-  const genreHue = { Action:18, Drama:265, Horror:355, Comedy:44, Thriller:350, Romance:332, "Sci-Fi":192, Animasi:280, Fantasy:150, Documentary:32 };
-  const synopsis = {
-    "Sci-Fi":"Di antara reruntuhan teknologi lama, seorang penjelajah mencari jawaban yang mungkin tak seharusnya ditemukan.",
-    "Drama":"Sebuah keluarga belajar bahwa luka yang disimpan diam-diam justru semakin sulit disembuhkan.",
-    "Horror":"Rumah tua di ujung kota menyimpan sesuatu yang menunggu untuk dibangunkan kembali.",
-    "Comedy":"Rencana sederhana untuk membuktikan diri malah berubah jadi kekacauan yang tak terduga.",
-    "Thriller":"Satu keputusan di malam hujan mengubah segalanya bagi semua orang yang terlibat.",
-    "Romance":"Dua orang asing bertemu di waktu yang salah, namun sulit untuk saling melupakan.",
-    "Fantasy":"Sebuah dunia yang terlupakan bangkit kembali saat batas antara sihir dan kenyataan mulai kabur.",
-    "Animasi":"Petualangan penuh warna yang mengajarkan bahwa keberanian kecil bisa berdampak besar.",
-    "Documentary":"Sebuah catatan jujur tentang orang-orang yang memilih bertahan meski keadaan tak mudah.",
-    "default":"Sebuah kisah yang mengajak penonton menyelami sudut pandang baru dari awal hingga akhir."
-  };
+  // ---------- SUPABASE INITIALIZATION ----------
+  const SUPABASE_URL = "https://YOUR_SUPABASE_PROJECT.supabase.co"; // Ganti dengan Supabase URL kamu
+  const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";               // Ganti dengan Supabase Key kamu
+  const supabase = (SUPABASE_URL.includes("YOUR_")) ? null : supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const titles = [
-    ["Ashes of Tomorrow","Sci-Fi",8.4,"2j 18m"],
-    ["Silent Harbor","Drama",7.9,"1j 56m"],
-    ["Crimson Alley","Thriller",8.1,"2j 04m"],
-    ["The Last Recipe","Comedy",7.4,"1j 42m"],
-    ["Hollow Kingdom","Fantasy",8.6,"2j 31m"],
-    ["Paper Moonlight","Romance",7.2,"1j 49m"],
-    ["Iron Meridian","Action",8.0,"2j 12m"],
-    ["Whispers of Kael","Horror",7.6,"1j 38m"],
-    ["Glasswork","Drama",8.3,"2j 02m"],
-    ["Nightfall Express","Thriller",7.8,"1j 58m"],
-    ["Sundown Circus","Animasi",8.2,"1j 32m"],
-    ["Echoes in Static","Sci-Fi",7.5,"2j 09m"],
-    ["The Quiet Ledger","Drama",7.7,"1j 47m"],
-    ["Marrow Road","Horror",7.3,"1j 40m"],
-    ["Velvet Static","Romance",7.0,"1j 51m"]
+  let currentUser = null;
+  let isUserPremium = false;
+
+  // TMDB Config
+  const TMDB_BASE = "https://api.themoviedb.org/3";
+  const TMDB_TOKEN = "4a1e36ee37d8dbb5691e45ecf61c7dcb";
+  const IMG_BASE = "https://image.tmdb.org/t/p";
+
+  const STREAM_SOURCES = [
+    { id: "vidsrc", label: "Server VIP 1 (Fast)", isVip: true, baseUrl: "https://vidsrc.me/embed/movie?tmdb=" },
+    { id: "superembed", label: "Server VIP 2 (HD)", isVip: true, baseUrl: "https://multiembed.mov/directstream.php?video_id=" },
+    { id: "2embed", label: "Server 3 (Free)", isVip: false, baseUrl: "https://www.2embed.cc/embed/" }
   ];
 
-  function posterArt(title, genre, opts={}){
-    const hue = genreHue[genre] ?? 200;
-    const gx = 20 + (title.length * 13) % 60;
-    const gy = 15 + (title.length * 7) % 50;
-    const ang = 100 + (title.length * 17) % 60;
-    const badge = opts.badge ? `<span class="badge">${opts.badge}</span>` : "";
-    const fav = opts.fav !== false ? `<button class="fav" data-fav aria-label="Simpan ke daftar">${heartIcon()}</button>` : "";
-    const play = opts.play !== false ? `<div class="play">${playIcon()}</div>` : "";
-    return `<div class="poster" style="--hue:${hue};--gx:${gx}%;--gy:${gy}%;--ang:${ang}deg;">
-      <div class="art-glow"></div><div class="art-band"></div><div class="art-mono">${genre.charAt(0)}</div>
-      ${badge}${fav}${play}
-      <div class="poster-title">${title}</div>
-    </div>`;
-  }
-  function playIcon(){ return `<svg width="34" height="34" viewBox="0 0 24 24" fill="#F1ECE4"><path d="M8 5v14l11-7z"/></svg>`; }
-  function heartIcon(){ return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 3 5 6.5 5c2 0 3.5 1.2 4.5 2.7C12 6.2 13.5 5 15.5 5 19 5 21.5 8.5 20.5 12.5 18 16.65 12 21 12 21z"/></svg>`; }
-
-  function card(t, opts={}){
-    const [title, genre, rating, dur] = t;
-    return `<div class="card" data-name="${title}" data-title="${title.toLowerCase()}" data-genre="${genre}" tabindex="0" role="button" aria-label="${title}">
-      ${posterArt(title, genre, opts)}
-      <div class="card-title">${title}</div>
-      <div class="card-sub"><span class="rating">★ ${rating}</span><span>${genre}</span><span>${dur}</span></div>
-      ${opts.progress!=null ? `<div class="progress-bar"><div class="progress-fill" style="width:${opts.progress}%"></div></div>` : ""}
-    </div>`;
+  function imgUrl(path, type = "poster") {
+    if (!path) return null;
+    const sizes = { poster: "w500", backdrop: "w1280", profile: "w185" };
+    return `${IMG_BASE}/${sizes[type]}${path}`;
   }
 
-  document.getElementById('genre-strip').innerHTML = genres.map((g,i)=>{
-    const dotStyle = g === "Semua"
-      ? "background:conic-gradient(from 0deg,hsl(0,70%,55%),hsl(60,70%,55%),hsl(150,70%,55%),hsl(220,70%,55%),hsl(300,70%,55%),hsl(0,70%,55%))"
-      : `background:hsl(${genreHue[g]},70%,55%)`;
-    return `<button class="genre-chip ${i===0?'active':''}" data-genre="${g}"><span class="chip-dot" style="${dotStyle}"></span>${g}</button>`;
-  }).join("");
+  const genreList = [
+    { name: "Semua", id: null }, { name: "Aksi", id: 28 }, { name: "Petualangan", id: 12 },
+    { name: "Animasi", id: 16 }, { name: "Komedi", id: 35 }, { name: "Drama", id: 18 },
+    { name: "Horor", id: 27 }, { name: "Sci-Fi", id: 878 }
+  ];
 
-  const heroPicks = titles.slice(0,3);
-  document.getElementById('hero').innerHTML = heroPicks.map((t,i)=>{
-    const [title, genre, rating, dur] = t;
-    const hue = genreHue[genre] ?? 200;
-    return `<div class="hero-slide ${i===0?'active':''}" style="--hue:${hue}" data-slide="${i}">
-      <div class="hero-content">
-        <div>
-          <div class="hero-tag"><span class="dot"></span>Pilihan minggu ini</div>
-          <h1 class="hero-title">${title}</h1>
-          <div class="hero-meta"><span class="rating">★ ${rating}</span><span>2026</span><span>${genre}</span><span>${dur}</span></div>
-          <p class="hero-desc">Di masa depan yang tenggelam oleh naiknya permukaan laut, seorang insinyur muda harus memilih antara menyelamatkan kotanya atau keluarganya sendiri, sebelum waktu benar-benar habis.</p>
-          <div class="btn-row">
-            <button class="btn btn-primary liquid-glass">▶ Tonton sekarang</button>
-            <button class="btn btn-ghost liquid-glass" data-fav>+ Simpan ke daftar</button>
-          </div>
-        </div>
-        <div class="hero-poster">${posterArt(title, genre, {badge:null, fav:false, play:false})}</div>
-      </div>
-    </div>`;
-  }).join("") + `<div class="hero-dots">${heroPicks.map((_,i)=>`<button class="hero-dot ${i===0?'active':''}" data-dot="${i}" aria-label="Slide ${i+1}"></button>`).join("")}</div>`;
+  let activeMovieId = null;
+  let activeMovieType = "movie";
 
-  let heroIdx = 0;
-  function showHero(idx){
-    document.querySelectorAll('.hero-slide').forEach((el,i)=> el.classList.toggle('active', i===idx));
-    document.querySelectorAll('.hero-dot').forEach((el,i)=> el.classList.toggle('active', i===idx));
-    heroIdx = idx;
+  document.getElementById('genreStrip').innerHTML = genreList.map((g, i) =>
+    `<button class="genre-chip ${i===0?'active':''}" onclick="filterGenre(${g.id}, '${g.name}', this)">${g.name}</button>`
+  ).join("");
+
+  document.addEventListener("DOMContentLoaded", () => {
+    loadTrending();
+    checkAuthSession();
+  });
+
+  async function tmdbFetch(endpoint, params = {}) {
+    const qs = new URLSearchParams({ api_key: TMDB_TOKEN, language: "id-ID", ...params }).toString();
+    const res = await fetch(`${TMDB_BASE}${endpoint}?${qs}`);
+    return await res.json();
   }
-  document.querySelectorAll('.hero-dot').forEach(dot=> dot.addEventListener('click', ()=> showHero(parseInt(dot.dataset.dot))));
-  let heroTimer = setInterval(()=> showHero((heroIdx+1) % heroPicks.length), 6000);
-  document.getElementById('hero').addEventListener('mouseenter', ()=> clearInterval(heroTimer));
-  document.getElementById('hero').addEventListener('mouseleave', ()=> heroTimer = setInterval(()=> showHero((heroIdx+1) % heroPicks.length), 6000));
 
-  document.getElementById('continue-list').innerHTML = titles.slice(3,9).map((t,i)=> card(t,{progress:[70,35,90,15,55,25][i], badge:null})).join("");
-  document.getElementById('trending-list').innerHTML = titles.slice(0,8).map(t=>card(t,{badge:"HD"})).join("");
-  document.getElementById('latest-list').innerHTML = titles.slice(0,12).map(t=>card(t,{badge:"BARU"})).join("");
-  document.getElementById('toprated-list').innerHTML = [...titles].sort((a,b)=>b[2]-a[2]).slice(0,8).map(t=>card(t)).join("");
-  document.getElementById('top10-list').innerHTML = titles.slice(0,10).map((t,i)=>
-    `<div class="top10-item" data-name="${t[0]}" data-title="${t[0].toLowerCase()}" data-genre="${t[1]}" tabindex="0" role="button" aria-label="${t[0]}">
-      <div class="top10-num">${i+1}</div>${posterArt(t[0], t[1], {badge:null, fav:false, play:false})}
-    </div>`).join("");
-
-  // toast
-  const toast = document.getElementById('toast');
-  let toastTimer;
-  function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(()=> toast.classList.remove('show'), 1800); }
-
-  // quick-view modal
-  const modalBackdrop = document.getElementById('modal-backdrop');
-  let lastFocused = null;
-  function openModal(name, genre){
-    const rec = titles.find(t=>t[0]===name) || [name, genre, "-", "-"];
-    const [t, g, rating, dur] = rec;
-    document.getElementById('modal-art').innerHTML = posterArt(t, g, {badge:null, fav:false, play:false});
-    document.getElementById('modal-title').textContent = t;
-    document.getElementById('modal-meta').innerHTML = `<span class="rating">★ ${rating}</span><span>2026</span><span>${g}</span><span>${dur}</span>`;
-    document.getElementById('modal-desc').textContent = synopsis[g] || synopsis.default;
-    lastFocused = document.activeElement;
-    modalBackdrop.classList.add('show');
-    document.body.style.overflow = 'hidden';
-    document.getElementById('modal-close').focus();
+  async function loadTrending() {
+    showHomeView();
+    document.getElementById("gridTitle").innerHTML = `<i class="fa-solid fa-fire"></i> Trending Minggu Ini`;
+    const data = await tmdbFetch("/trending/all/day");
+    renderGrid(data.results);
   }
-  function closeModal(){
-    modalBackdrop.classList.remove('show');
-    document.body.style.overflow = '';
-    if(lastFocused) lastFocused.focus();
-  }
-  document.getElementById('modal-close').addEventListener('click', closeModal);
-  modalBackdrop.addEventListener('click', e=>{ if(e.target === modalBackdrop) closeModal(); });
-  document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && modalBackdrop.classList.contains('show')) closeModal(); });
 
-  // liquid glass volume slider
-  const volRange = document.getElementById('volume-range');
-  const volFill = document.getElementById('volume-fill');
-  const volThumb = document.getElementById('volume-thumb');
-  function syncVolumeUI(){
-    const pct = volRange.value + '%';
-    volFill.style.width = pct;
-    volThumb.style.left = pct;
-  }
-  volRange.addEventListener('input', syncVolumeUI);
-  syncVolumeUI();
-
-  // clicks: favourite toggle vs open quick-view
-  document.body.addEventListener('click', (e)=>{
-    const favBtn = e.target.closest('[data-fav]');
-    if(favBtn){
-      e.stopPropagation();
-      if(favBtn.classList.contains('fav')){
-        favBtn.classList.toggle('on');
-        showToast(favBtn.classList.contains('on') ? 'Ditambahkan ke daftar' : 'Dihapus dari daftar');
-      } else {
-        showToast('Ditambahkan ke daftar');
-      }
+  function renderGrid(items) {
+    const grid = document.getElementById("movieGrid");
+    grid.innerHTML = "";
+    if (!items || items.length === 0) {
+      grid.innerHTML = `<p style="color:var(--ink-dim); grid-column:1/-1;">Tidak ada film ditemukan.</p>`;
       return;
     }
-    const trigger = e.target.closest('.card, .top10-item');
-    if(trigger) openModal(trigger.dataset.name, trigger.dataset.genre);
-  });
-  document.body.addEventListener('keydown', (e)=>{
-    if((e.key === 'Enter' || e.key === ' ') && e.target.matches('.card, .top10-item')){
-      e.preventDefault();
-      openModal(e.target.dataset.name, e.target.dataset.genre);
-    }
-  });
+    items.forEach(item => {
+      const title = item.title || item.name;
+      const type = item.media_type || (item.title ? 'movie' : 'tv');
+      const poster = imgUrl(item.poster_path, "poster") || "https://via.placeholder.com/300x450?text=No+Poster";
+      const rating = item.vote_average ? item.vote_average.toFixed(1) : "N/A";
 
-  // row scroll arrows
-  document.querySelectorAll('.scroll-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      document.getElementById(btn.dataset.target).scrollBy({left: 420 * parseInt(btn.dataset.dir), behavior:'smooth'});
-    });
-  });
-
-  // unified filtering: genre chip + search, applied across every shelf
-  const searchInput = document.getElementById('search-input');
-  const searchClear = document.getElementById('search-clear');
-  function applyFilters(){
-    const activeGenre = document.querySelector('.genre-chip.active')?.dataset.genre || 'Semua';
-    const q = searchInput.value.trim().toLowerCase();
-    document.querySelectorAll('.card, .top10-item').forEach(el=>{
-      const matchGenre = activeGenre === 'Semua' || el.dataset.genre === activeGenre;
-      const matchQuery = !q || el.dataset.title.includes(q);
-      el.style.display = (matchGenre && matchQuery) ? '' : 'none';
-    });
-    document.querySelectorAll('.shelf').forEach(shelf=>{
-      const items = shelf.querySelectorAll('.card, .top10-item');
-      const visible = [...items].filter(i=> i.style.display !== 'none').length;
-      const emptyEl = shelf.nextElementSibling;
-      if(emptyEl && emptyEl.classList.contains('empty-state')) emptyEl.classList.toggle('show', items.length > 0 && visible === 0);
+      const card = document.createElement("div");
+      card.className = "card";
+      card.onclick = () => openDetailPage(item.id, type);
+      card.innerHTML = `
+        <div class="card-poster">
+          <span class="badge-rating"><i class="fa-solid fa-star"></i> ${rating}</span>
+          <img src="${poster}" alt="${title}">
+        </div>
+        <div class="card-info">
+          <div class="card-title">${title}</div>
+          <div class="card-sub">${type.toUpperCase()}</div>
+        </div>
+      `;
+      grid.appendChild(card);
     });
   }
-  document.getElementById('genre-strip').addEventListener('click', (e)=>{
-    const chip = e.target.closest('.genre-chip');
-    if(!chip) return;
-    document.querySelectorAll('.genre-chip').forEach(c=>c.classList.remove('active'));
-    chip.classList.add('active');
-    applyFilters();
-  });
-  searchInput.addEventListener('input', ()=>{
-    searchClear.style.display = searchInput.value ? 'block' : 'none';
-    applyFilters();
-  });
-  searchClear.addEventListener('click', ()=>{
-    searchInput.value = ''; searchClear.style.display = 'none'; searchInput.focus(); applyFilters();
-  });
 
-  // header scroll shadow
-  window.addEventListener('scroll', ()=> document.getElementById('site-header').classList.toggle('scrolled', window.scrollY > 8));
+  function showHomeView() {
+    document.getElementById("detailView").style.display = "none";
+    document.getElementById("homeView").style.display = "block";
+    document.getElementById("videoIframe").src = "";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
-  // mobile drawer
-  const burger = document.getElementById('burger-btn');
-  burger.addEventListener('click', ()=>{
-    const drawer = document.getElementById('mobile-drawer');
-    const open = drawer.classList.toggle('open');
-    burger.setAttribute('aria-expanded', open);
-  });
+  async function openDetailPage(id, type = 'movie') {
+    activeMovieId = id;
+    activeMovieType = type;
 
-  // bottom nav (mobile)
-  document.querySelectorAll('.bottom-nav-item').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      document.querySelectorAll('.bottom-nav-item').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      const action = btn.dataset.action;
-      if(action === 'home'){
-        window.scrollTo({top:0, behavior:'smooth'});
-      } else if(action === 'search'){
-        window.scrollTo({top:0, behavior:'smooth'});
-        setTimeout(()=> searchInput.focus(), 400);
-      } else if(action === 'genre'){
-        document.getElementById('terbaru').scrollIntoView({behavior:'smooth', block:'start'});
-        const strip = document.getElementById('genre-strip');
-        strip.classList.add('pulse');
-        setTimeout(()=> strip.classList.remove('pulse'), 1500);
-      } else if(action === 'populer'){
-        document.getElementById('trending').scrollIntoView({behavior:'smooth', block:'start'});
-      } else if(action === 'install'){
-        showToast('Reelo bisa dipasang ke layar utama untuk akses lebih cepat');
-      }
+    document.getElementById("playerBox").style.display = "none";
+    document.getElementById("serverList").style.display = "none";
+    document.getElementById("backdropContainer").style.display = "block";
+
+    const detail = await tmdbFetch(`/${type}/${id}`, { append_to_response: "credits" });
+
+    const title = detail.title || detail.name;
+    document.getElementById("detailTitle").innerText = title;
+    document.getElementById("detailBackdrop").src = imgUrl(detail.backdrop_path, "backdrop") || imgUrl(detail.poster_path, "poster") || "https://via.placeholder.com/800x450";
+    document.getElementById("detailPoster").src = imgUrl(detail.poster_path, "poster") || "https://via.placeholder.com/150x225";
+    
+    const rating = detail.vote_average ? detail.vote_average.toFixed(1) : "N/A";
+    document.getElementById("detailRating").innerText = rating;
+    document.getElementById("ratingScore").innerText = rating;
+    document.getElementById("ratingCount").innerText = `(${detail.vote_count || 0} ratings)`;
+    document.getElementById("detailYear").innerText = (detail.release_date || detail.first_air_date || "2026").split("-")[0];
+    document.getElementById("detailRuntime").innerText = detail.runtime ? `${detail.runtime} min` : 'N/A';
+    document.getElementById("detailOverview").innerText = detail.overview || "Sinopsis tidak tersedia.";
+    document.getElementById("detailStatus").innerText = detail.status || "Released";
+
+    const director = detail.credits?.crew ? detail.credits.crew.find(c => c.job === "Director") : null;
+    document.getElementById("detailDirector").innerText = director ? director.name : "N/A";
+
+    document.getElementById("homeView").style.display = "none";
+    document.getElementById("detailView").style.display = "block";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* SISTEM PEMUTARAN VIDEO & RESTRIKSI PREMIUM */
+  function startStreaming() {
+    const playerBox = document.getElementById("playerBox");
+    const serverList = document.getElementById("serverList");
+    const iframe = document.getElementById("videoIframe");
+
+    // Tampilkan Server
+    playerBox.style.display = "block";
+    serverList.style.display = "flex";
+    serverList.innerHTML = "";
+
+    STREAM_SOURCES.forEach((src, idx) => {
+      const btn = document.createElement("button");
+      btn.className = `server-chip ${idx === 0 ? 'active' : ''} ${src.isVip ? 'vip-only' : ''}`;
+      btn.innerHTML = src.isVip ? `<i class="fa-solid fa-crown" style="color:var(--accent);"></i> ${src.label}` : src.label;
+
+      btn.onclick = () => {
+        if (src.isVip && !isUserPremium) {
+          alert("Server ini khusus member Premium! Silahkan upgrade akun kamu.");
+          togglePremiumModal();
+          return;
+        }
+        document.querySelectorAll(".server-chip").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        iframe.src = `${src.baseUrl}${activeMovieId}`;
+      };
+      serverList.appendChild(btn);
     });
-  });
-</script>
 
+    // Default Server
+    if (isUserPremium) {
+      iframe.src = `${STREAM_SOURCES[0].baseUrl}${activeMovieId}`;
+    } else {
+      // Jika Free User, paksa pakai Server 3 Free
+      iframe.src = `${STREAM_SOURCES[2].baseUrl}${activeMovieId}`;
+    }
+
+    playerBox.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ---------- LOGIKA AUTHENTICATION & BILLING ----------
+  let isAuthRegisterMode = false;
+
+  function toggleAuthModal() {
+    const modal = document.getElementById("authModal");
+    modal.classList.toggle("show");
+  }
+
+  function togglePremiumModal() {
+    if (!currentUser) {
+      alert("Silahkan login terlebih dahulu sebelum membeli Premium.");
+      toggleAuthModal();
+      return;
+    }
+    const modal = document.getElementById("premiumModal");
+    modal.classList.toggle("show");
+  }
+
+  function switchAuthMode() {
+    isAuthRegisterMode = !isAuthRegisterMode;
+    document.getElementById("authTitle").innerText = isAuthRegisterMode ? "Daftar Akun Baru" : "Masuk ke BillyMovieZone";
+    document.getElementById("authSubmitBtn").innerText = isAuthRegisterMode ? "Daftar" : "Masuk";
+    document.getElementById("authSwitchText").innerText = isAuthRegisterMode ? "Sudah punya akun? Masuk" : "Belum punya akun? Daftar sekarang";
+  }
+
+  async function handleAuthAction() {
+    const email = document.getElementById("authEmail").value;
+    const password = document.getElementById("authPassword").value;
+
+    if (!email || !password) return alert("Email & Password wajib diisi!");
+
+    if (!supabase) {
+      // Simulasi Local jika Supabase belum diisi Key-nya
+      currentUser = { email };
+      isUserPremium = false;
+      updateUserNavUI();
+      toggleAuthModal();
+      alert("Berhasil masuk (Modus Simulasi/Demo)!");
+      return;
+    }
+
+    if (isAuthRegisterMode) {
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) alert(error.message);
+      else alert("Pendaftaran berhasil! Silahkan cek email konfirmasi.");
+    } else {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) alert(error.message);
+      else {
+        currentUser = data.user;
+        checkPremiumStatus();
+        toggleAuthModal();
+      }
+    }
+  }
+
+  function checkAuthSession() {
+    if (!supabase) return;
+    const session = supabase.auth.getSession();
+    if (session?.user) {
+      currentUser = session.user;
+      checkPremiumStatus();
+    }
+  }
+
+  function checkPremiumStatus() {
+    // Simulasi Cek Database Premium
+    updateUserNavUI();
+  }
+
+  function updateUserNavUI() {
+    const btn = document.getElementById("userAuthBtn");
+    if (currentUser) {
+      btn.innerHTML = `<i class="fa-solid fa-crown" style="color:${isUserPremium ? '#f5b82e' : '#fff'};"></i> ${isUserPremium ? 'VIP Active' : 'Free Member'}`;
+    } else {
+      btn.innerHTML = `<i class="fa-solid fa-user"></i> Masuk`;
+    }
+  }
+
+  function simulatePaymentSuccess() {
+    isUserPremium = true;
+    updateUserNavUI();
+    togglePremiumModal();
+    alert("Pembayaran Berhasil! Status akun kamu sekarang menjadi PREMIUM 30 Hari.");
+  }
+</script>
 </body>
 </html>
